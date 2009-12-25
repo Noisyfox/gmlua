@@ -21,6 +21,8 @@ function onDraw()
 		
 	--Draw text
 	draw_text( 1104 +1, 384 - 15, "Press SPACE to fill your fuel" )
+	
+	draw_line( getX( car ), getY( car ), 1170, 400 )
 end
 
 function onMove()
