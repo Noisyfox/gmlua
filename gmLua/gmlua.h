@@ -18,22 +18,30 @@
 ***************************************************************************/
 
 #pragma once
-#include "gmfunctions.h"
 
-int _gmCall( lua_State *L );
-int _gmError( lua_State *L, int status );
+#include <iostream>
+#include <string>
+#include <map>
 
-class luaFile {
-public:
-  luaFile();
-  lua_State* lua;
-  int errorScript;
-  int getScript( std::string name );
-  void addScript( std::string name, int callback );
-  void call( char *name, int list );
-  void registerGMTOLUA( std::string name );
-  static luaFile *find( lua_State*s );
-  static luaFile *find( int s );
-  static std::map<int, luaFile*> luaFiles;
-  std::map<std::string, int> scripts;
+#include <gmapi.h>
+
+extern "C"
+{
+	#include <lua.h>
+	#include <lualib.h>
+	#include <lauxlib.h>
+}
+
+extern int errorScript;
+
+int _gmCall(lua_State* L);
+void _gmError(lua_State* L);
+
+class luaFile
+{
+	public:
+		luaFile();
+		lua_State* lua;
+		void addScript(std::string name, int callback);
+		void call(char *name, int list);
 };
