@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="gmLua"
 	ProjectGUID="{E6F84A74-CABD-442A-ADA2-E6EADC85A250}"
 	RootNamespace="gmLua"
@@ -177,10 +177,6 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\gmfunctions.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\gmlua.cpp"
 				>
 			</File>
@@ -194,10 +190,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath=".\gmfunctions.h"
-				>
-			</File>
 			<File
 				RelativePath=".\gmlua.h"
 				>
@@ -214,10 +206,6 @@
 			</File>
 			<File
 				RelativePath="..\Example\game.lua"
-				>
-			</File>
-			<File
-				RelativePath="..\Example\GMlua.gml"
 				>
 			</File>
 			<File
