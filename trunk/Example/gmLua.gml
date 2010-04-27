@@ -60,5 +60,5 @@ return ret;
 
 
 #define luaSetErrorScript
-return external_call(global.f_lua_seterrorscript, argument0, argument1);
+return external_call(global.f_lua_seterrorscript, argument0);
 
