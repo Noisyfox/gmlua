@@ -22,7 +22,7 @@
 #define GMLUA_DOUBLE_API extern "C" __declspec(dllexport) double
 #define GMLUA_STRING_API extern "C" __declspec(dllexport) char*
 
-gm::CGMAPI*		gmapi;
+gm::CGMAPI*	gmapi;
 
 GMLUA_DOUBLE_API gmluaInit()
 {
@@ -53,18 +53,58 @@ GMLUA_DOUBLE_API setErrorScript(double sid)
 	return true;
 }
 
-GMLUA_DOUBLE_API newFile()
+GMLUA_DOUBLE_API newState()
 {
 	luaFile* f = new luaFile();
 
 	f->lua = lua_open();
 
 	if (!f->lua)
-		return false;
+	{
+		delete f;
+		return 0;
+	}
 
 	luaL_openlibs(f->lua);
 
 	return (double)(size_t)f;
+}
+
+GMLUA_DOUBLE_API destroyState(double i)
+{
+	luaFile* f = (luaFile*)(size_t)i;
+
+	if (f == NULL)
+		return false;
+
+	lua_close(f->lua);
+
+	delete f;
+
+	return true;
+}
+
+GMLUA_DOUBLE_API loadFile(double i, char* filename)
+{
+	luaFile* f = (luaFile*)(size_t)i;
+
+	int s = luaL_loadfile(f->lua, filename);
+    
+	if (s == 0)
+	{
+		s = lua_pcall(f->lua, 0, LUA_MULTRET, 0);
+
+		if (s != 0)
+		{
+			_gmError(f->lua);
+
+			return false;
+		}
+
+		return true;
+	} else {
+		return false;
+	}
 }
 
 GMLUA_DOUBLE_API registerScript(double i, char* name, double callback)
@@ -99,36 +139,3 @@ GMLUA_DOUBLE_API callEvent(double i, char *name, double list)
 		return true;
 }
 
-GMLUA_DOUBLE_API execute(double i, char* filename)
-{
-	luaFile* f = (luaFile*)(size_t)i;
-
-	int s = luaL_loadfile(f->lua, filename);
-    
-	if (s == 0)
-	{
-		s = lua_pcall(f->lua, 0, LUA_MULTRET, 0);
-
-		if (s != 0)
-		{
-			_gmError(f->lua);
-
-			return false;
-		}
-
-		return true;
-	} else {
-		return false;
-	}
-}
-
-GMLUA_DOUBLE_API destroy(double i)
-{
-	luaFile* f = (luaFile*)(size_t)i;
-
-	lua_close(f->lua);
-
-	delete f;
-
-	return true;
-}
