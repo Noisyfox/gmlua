@@ -139,3 +139,99 @@ GMLUA_DOUBLE_API callEvent(double i, char *name, double list)
 		return true;
 }
 
+GMLUA_DOUBLE_API addInternal(double i)
+{
+	luaFile* f = (luaFile*)(size_t)i;
+
+	lua_pushcclosure(f->lua, _getGMFunction, 0);
+	lua_setglobal(f->lua, "getGMFunction");
+
+	lua_pushcclosure(f->lua, _getGMFunction, 0);
+	lua_setglobal(f->lua, "callFunction");
+
+	return true;
+}
+
+gm::GMVALUE args[21];
+gm::GMVALUE res;
+
+int _getGMFunction(lua_State* L)
+{
+	int argCount = lua_gettop(L);
+
+	if (argCount != 1)
+	{
+		lua_pushstring(L, "getGMFunction takes only one parameter.");
+		lua_error(L);
+		return 0;
+	}
+
+	if (!lua_isstring(L, 1))
+	{
+		lua_pushstring(L, "getGMFunction: first parameter must be a string");
+		lua_error(L);
+		return 0;
+	}
+
+	lua_pushnumber(L, (double)(size_t)gmapi->GetGMFunctionAddress(lua_tostring(L, 1)));
+
+	return 1;
+}
+
+int _callFunction(lua_State* L)
+{
+	int argCount = lua_gettop(L);
+
+	if (argCount < 1)
+	{
+		lua_pushstring(L, "callFunction requires at least one parameter.");
+		lua_error(L);
+		return 0;
+	}
+
+	if (!lua_isnumber(L, 1))
+	{
+		lua_pushstring(L, "callFunction: provided function isn't a number.");
+		lua_error(L);
+		return 0;
+	}
+
+	if (lua_tonumber(L, 1) == 0)
+	{
+		lua_pushstring(L, "callFunction: provided function is NULL.");
+		lua_error(L);
+		return 0;
+	}
+
+	gm::GMFUCTION func = (gm::GMFUCTION)(size_t)lua_tonumber(L, 1);
+
+	for (int i = 2; i < argCount; i++)
+	{
+		if (lua_isstring(L, i))
+			args[i - 2].Set(lua_tostring(L, i));
+		else if (lua_isnumber(L, i))
+			args[i - 2].Set(lua_tonumber(L, i));
+		else
+		{
+			lua_pushstring(L, "callFunction: parameter(s) must be a string or number (not integer)");
+			lua_error(L);
+			return 0;
+		}
+	}
+
+	/* CALL FUNCTION */
+
+	if (res.type == gm::GMValueType::VT_REAL)
+	{
+		lua_pushnumber(L, args[0].real);
+	} else if (res.type == gm::GMValueType::VT_STRING) {
+		lua_pushstring(L, args[0].string);
+	} else {
+		lua_pushstring(L, "callFunction: return value isn't a real ot string, something is wrong.");
+		lua_error(L);
+		return 0;
+	}
+
+	return 1;
+}
+
