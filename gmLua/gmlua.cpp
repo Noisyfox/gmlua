@@ -117,3 +117,4 @@ void _gmError(lua_State* L)
 	
 	lua_pop(L, 1);
 }
+

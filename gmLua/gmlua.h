@@ -36,6 +36,9 @@ extern int errorScript;
 
 int _gmCall(lua_State* L);
 void _gmError(lua_State* L);
+int _getGMFunction(lua_State* L);
+int _callFunctionN(lua_State* L);
+int _callFunctionS(lua_State* L);
 
 class luaFile
 {
