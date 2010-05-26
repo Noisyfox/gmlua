@@ -146,14 +146,11 @@ GMLUA_DOUBLE_API addInternal(double i)
 	lua_pushcclosure(f->lua, _getGMFunction, 0);
 	lua_setglobal(f->lua, "getGMFunction");
 
-	lua_pushcclosure(f->lua, _getGMFunction, 0);
-	lua_setglobal(f->lua, "callFunction");
+	lua_pushcclosure(f->lua, _callGMFunction, 0);
+	lua_setglobal(f->lua, "callGMFunction");
 
 	return true;
 }
-
-gm::GMVALUE args[21];
-gm::GMVALUE res;
 
 int _getGMFunction(lua_State* L)
 {
@@ -173,39 +170,48 @@ int _getGMFunction(lua_State* L)
 		return 0;
 	}
 
-	lua_pushnumber(L, (double)(size_t)gmapi->GetGMFunctionAddress(lua_tostring(L, 1)));
+	for (int i = 0; i < gm::GM_FUNCTION_COUNT; i++)
+		if (!strcmp(gm::GM_FUNCTION_NAMES[i], lua_tostring(L, 1)))
+		{
+			lua_pushnumber(L, i + 1);
 
-	return 1;
+			return 1;
+		}
+
+	return 0;
 }
 
-int _callFunction(lua_State* L)
+int _callGMFunction(lua_State* L)
 {
+	gm::GMVALUE args[21];
+	gm::GMVALUE res;
+
 	int argCount = lua_gettop(L);
 
 	if (argCount < 1)
 	{
-		lua_pushstring(L, "callFunction requires at least one parameter.");
+		lua_pushstring(L, "callGMFunction requires at least one parameter.");
 		lua_error(L);
 		return 0;
 	}
 
 	if (!lua_isnumber(L, 1))
 	{
-		lua_pushstring(L, "callFunction: provided function isn't a number.");
+		lua_pushstring(L, "callGMFunction: provided function isn't a number.");
 		lua_error(L);
 		return 0;
 	}
 
 	if (lua_tonumber(L, 1) == 0)
 	{
-		lua_pushstring(L, "callFunction: provided function is NULL.");
+		lua_pushstring(L, "callGMFunction: provided function is bad.");
 		lua_error(L);
 		return 0;
 	}
 
-	gm::GMFUCTION func = (gm::GMFUCTION)(size_t)lua_tonumber(L, 1);
+	int func = (int)lua_tonumber(L, 1) - 1;
 
-	for (int i = 2; i < argCount; i++)
+	for (int i = 2; i <= argCount; i++)
 	{
 		if (lua_isstring(L, i))
 			args[i - 2].Set(lua_tostring(L, i));
@@ -213,21 +219,22 @@ int _callFunction(lua_State* L)
 			args[i - 2].Set(lua_tonumber(L, i));
 		else
 		{
-			lua_pushstring(L, "callFunction: parameter(s) must be a string or number (not integer)");
+			lua_pushstring(L, "callGMFunction: parameter(s) must be a string or number (not integer)");
 			lua_error(L);
 			return 0;
 		}
 	}
 
 	/* CALL FUNCTION */
+	gm::core::RunnerCallFunction(gmapi->GMAPIGMFunctionTable(func), &args[0], argCount - 1, &res);
 
-	if (res.type == gm::GMValueType::VT_REAL)
+	if (res.type == gm::VT_REAL)
 	{
-		lua_pushnumber(L, args[0].real);
-	} else if (res.type == gm::GMValueType::VT_STRING) {
-		lua_pushstring(L, args[0].string);
+		lua_pushnumber(L, res.real);
+	} else if (res.type == gm::VT_STRING) {
+		lua_pushstring(L, res.string);
 	} else {
-		lua_pushstring(L, "callFunction: return value isn't a real ot string, something is wrong.");
+		lua_pushstring(L, "callGMFunction: return value isn't a real ot string, something is wrong.");
 		lua_error(L);
 		return 0;
 	}
