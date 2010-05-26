@@ -5,9 +5,10 @@ global.f_lua_seterrorscript = external_define(global.f_lua_dll, "setErrorScript"
 global.f_lua_register       = external_define(global.f_lua_dll, "registerScript", dll_cdecl, ty_real, 3, ty_real, ty_string, ty_real);
 global.f_lua_event          = external_define(global.f_lua_dll, "callEvent", dll_cdecl, ty_real, 3, ty_real, ty_string, ty_real);
 global.f_lua_call           = external_define(global.f_lua_dll, "callFunction", dll_cdecl, ty_real, 3, ty_real, ty_string, ty_real);
-global.f_lua_load           = external_define(global.f_lua_dll, "execute", dll_cdecl, ty_real, 2, ty_real, ty_string);
-global.f_lua_destroy        = external_define(global.f_lua_dll, "destroy", dll_cdecl, ty_real, 1, ty_real);
-global.f_lua_new            = external_define(global.f_lua_dll, "newFile", dll_cdecl, ty_real, 0);
+global.f_lua_load           = external_define(global.f_lua_dll, "loadFile", dll_cdecl, ty_real, 2, ty_real, ty_string);
+global.f_lua_destroy        = external_define(global.f_lua_dll, "destroyState", dll_cdecl, ty_real, 1, ty_real);
+global.f_lua_new            = external_define(global.f_lua_dll, "newState", dll_cdecl, ty_real, 0);
+global.f_lua_addinternal    = external_define(global.f_lua_dll, "addInternal", dll_cdecl, ty_real, 1, ty_real);
 
 return external_call(external_define(global.f_lua_dll, "gmluaInit", dll_cdecl, ty_real, 0));
 
@@ -61,4 +62,7 @@ return ret;
 
 #define luaSetErrorScript
 return external_call(global.f_lua_seterrorscript, argument0);
+
+#define luaAddInternal
+external_call(global.f_lua_addinternal, argument0);
 
